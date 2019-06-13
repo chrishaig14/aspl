@@ -1,6 +1,6 @@
 2312 312;
 return123412 4;
-var x;
+var x;var return 531=    5;
 var y = 5;
 var z;
 z = y + 2;
@@ -10,5 +10,5 @@ x = z;
 ;;
 ===
 
-++++
++++++
 
