@@ -1,9 +1,10 @@
-int foo(int a, int b, ){
-    
-}
+#include <stdio.h>
 
 int main(){
-    printf("Hola");
-    printf("asdsf"sd);
-    printf()
+    int a = 5;
+    if (1){
+        int a = a + 4;
+        printf("a = %i\n", a);
+    }
+
 }

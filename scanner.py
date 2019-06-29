@@ -13,7 +13,7 @@ class Scanner:
 
     def scan_alnum(self, str, cur, line, col):
         start = cur
-        while cur < len(str) and str[cur].isalnum():
+        while cur < len(str) and (str[cur].isalnum() or str[cur]=="_"):
             cur += 1
             col += 1
         end = cur
@@ -57,6 +57,16 @@ class Scanner:
                 cur += 2
                 col += 2
                 return ("incrop", None), start, cur, line, col
+        elif str[cur] == "-":
+            start = cur
+            if str[cur + 1] != "-":
+                cur += 1
+                col += 1
+                return ("minus", None), start, cur, line, col
+            else:
+                cur += 2
+                col += 2
+                return ("decrop", None), start, cur, line, col
         elif str[cur] == "(":
             start = cur
             cur += 1
@@ -106,7 +116,7 @@ class Scanner:
     def scan(self, str, cur, line, col):
         if cur >= len(str):
             return ("eof", None), -1, -1, -1, -1
-        if str[cur].isalpha():
+        if str[cur].isalpha() or str[cur] == "_":
             return self.scan_alnum(str, cur, line, col)
         elif str[cur].isdigit():
             return self.scan_num(str, cur, line, col)

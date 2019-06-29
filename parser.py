@@ -1,3 +1,5 @@
+from colorama import Fore, Back, Style
+
 class Parser:
     def __init__(self, scanner):
         self.scanner = scanner
@@ -5,12 +7,13 @@ class Parser:
         self.previous_token = None
 
     def parse_assign_exp(self):
-        # print("parsing assignment/expression")
         # assignment => id = expression
         lvalue = self.parse_expression()
         # print("lvalue: ", lvalue)
         if self.match("assign"):
             rvalue = self.parse_expression()
+            print("rvalue:", rvalue)
+            input()
             return {"type": "Assignment", "lvalue": lvalue, "rvalue": rvalue}
         else:
             return lvalue
@@ -24,17 +27,33 @@ class Parser:
             return {"type": "Declaration", "id": self.previous_token["data"]}
 
     def parse_expression(self):
+        # print("PARSING NEW EXPRESSION:::")
         # print("parsing expression")
-        term = self.parse_term()
+        exp = self.parse_term()
         # print("parsed term: ", term)
-        if term is not None:
-            # expression => term + expression
-            if self.check('plus'):
-                self.advance()
-                exp = self.parse_expression()
-                return {"type": "Expression", "lvalue": term, "op": 'plus', "rvalue": exp}
-            # expression => term
-            return term
+        # print("parsed term", exp)
+        while self.check("plus") or self.check("minus"):
+            # print("THERES MORE")
+            op = self.current_token["type"]
+            self.advance()
+            second = self.parse_term()
+            print("second: ", second)
+            exp = {"type": "Expression", "first": exp,
+                   "op": op, "second": second}
+
+        return exp
+        # if term is not None:
+        #     # expression => term + expression
+        #     if self.check('plus'):
+        #         self.advance()
+        #         exp = self.parse_expression()
+        #         return {"type": "Expression", "first": term, "op": 'plus', "second": exp}
+        #     if self.check('minus'):
+        #         self.advance()
+        #         exp = self.parse_expression()
+        #         return {"type": "Expression", "first": term, "op": 'minus', "second": exp}
+        #     # expression => term
+        #     return term
 
     def parse_term(self):
         # term => factor
@@ -45,18 +64,18 @@ class Parser:
             if self.check('mult'):
                 self.advance()
                 term = self.parse_term()
-                return {"type": "Term", "lvalue": factor, "op": 'mult', "rvalue": term}
+                return {"type": "Expression", "first": factor, "op": 'mult', "second": term}
             return factor
 
     def parse_function(self):
-
+        print("NOW PARSING A FUNCTION")
         self.expect("lparen")
-        args = []
+        params = []
         if self.match("id"):
-            args.append(self.previous_token)
+            params.append(self.previous_token)
             while self.match("comma"):
                 self.expect("id")
-                args.append(self.previous_token)
+                params.append(self.previous_token)
 
         self.expect("rparen")
 
@@ -65,23 +84,48 @@ class Parser:
         while not self.check("rbrace"):
             statement = self.parse_statement()
             statements.append(statement)
-            print("function statement", statement)
-            input("ENTER FOR NEXT STATEMENT")
+            # print("function statement", statement)
+            # input("ENTER FOR NEXT STATEMENT")
         self.advance()
-        return {"type": "Function", "arguments": args, "statements": statements}
+        # input()
+        # input()
+        # input()
+        # input()
+        # print("FUNCTION PARSED IS: ", {"type": "Function", "arguments": args, "statements": statements})
+        return {"type": "Function", "params": params, "statements": statements}
 
     def parse_factor(self):
         # factor => number
         # print("parsing factor")
         # print("factor current token:", self.current_token)
         if self.match('string'):
-            return ("String", self.previous_token["data"])
+            return {"type": "String", "value": self.previous_token["data"]}
         if self.match('number'):
-            return ("Number", self.previous_token["data"])
+            return {"type": "Number", "value": self.previous_token["data"]}
         # factor => id
         if self.match("id"):
             # print("FACTOR ID: ", self.previous_token)
-            return ("Variable", self.previous_token["data"])
+            id = self.previous_token["data"]
+            # print("Found simple variable:", id)
+            if self.match("lparen"):
+                if self.match("rparen"):
+                    # print("Found empty function call")
+                    return {"type": "FunctionCall", "id": id, "args": []}
+                else:
+                    arg = self.parse_expression()
+                    # print("Found argument: ", arg)
+                    args = [arg]
+                    while self.match("comma"):
+                        arg = self.parse_expression()
+                        args.append(arg)
+                        # print("Found argument: ", arg)
+                    self.match("rparen")
+                    return {"type": "FunctionCall", "id": id, "args": args}
+            else:
+                # print("Found simple variable:", id)
+                return {"type": "Variable", "id": id}
+            # self.expect("rparen")
+
         # factor => ( exp )
         if self.match("lparen"):
             exp = self.parse_expression()
@@ -122,7 +166,7 @@ class Parser:
             exp = self.parse_expression()
             # print("RETURN EXPRESSION: ", exp)
             self.expect("semicolon")
-            return ("Return", exp)
+            return {"type":"Return", "exp":exp}
 
         print("Error: expected statement, got", self.current_token["type"])
 
@@ -161,13 +205,13 @@ class Parser:
         while not self.check("eof"):
             statement = self.parse_statement()
             program.append(statement)
-            print("STATEMENT: ", statement)
-            input("\nNEXT ...\n")
+            # print("STATEMENT: ", statement)
+            # input("\nNEXT ...\n")
         return program
 
     def parse(self):
         self.current_token = self.scanner.get_next()
-        print("current token: ", self.current_token)
+        # print("current token: ", self.current_token)
         self.current_token = {"type": self.current_token[0][0], "data": self.current_token[0]
                               [1], "line": self.current_token[1], "col": self.current_token[2]}
         return self.parse_program()

@@ -1,0 +1,96 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/a74b8474/
+Assignment	../helper.py	/^class Assignment:$/;"	kind:class	line:143
+Declaration	../helper.py	/^class Declaration:$/;"	kind:class	line:75
+Environment	../helper.py	/^class Environment:$/;"	kind:class	line:38
+Expression	../helper.py	/^class Expression:$/;"	kind:class	line:61
+Function	../helper.py	/^class Function:$/;"	kind:class	line:97
+FunctionCall	../helper.py	/^class FunctionCall:$/;"	kind:class	line:25
+Interpreter	../helper.py	/^class Interpreter:$/;"	kind:class	line:155
+Number	../helper.py	/^class Number:$/;"	kind:class	line:132
+Parser	../parser.py	/^class Parser:$/;"	kind:class	line:1
+Return	../helper.py	/^class Return:$/;"	kind:class	line:110
+Scanner	../scanner.py	/^class Scanner:$/;"	kind:class	line:6
+String	../helper.py	/^class String:$/;"	kind:class	line:86
+Variable	../helper.py	/^class Variable:$/;"	kind:class	line:121
+__init__	../helper.py	/^    def __init__(self, node):$/;"	kind:member	line:111
+__init__	../helper.py	/^    def __init__(self, node):$/;"	kind:member	line:122
+__init__	../helper.py	/^    def __init__(self, node):$/;"	kind:member	line:133
+__init__	../helper.py	/^    def __init__(self, node):$/;"	kind:member	line:144
+__init__	../helper.py	/^    def __init__(self, node):$/;"	kind:member	line:26
+__init__	../helper.py	/^    def __init__(self, node):$/;"	kind:member	line:62
+__init__	../helper.py	/^    def __init__(self, node):$/;"	kind:member	line:76
+__init__	../helper.py	/^    def __init__(self, node):$/;"	kind:member	line:87
+__init__	../helper.py	/^    def __init__(self, node):$/;"	kind:member	line:98
+__init__	../helper.py	/^    def __init__(self, parent=None):$/;"	kind:member	line:39
+__init__	../helper.py	/^    def __init__(self, program):$/;"	kind:member	line:156
+__init__	../parser.py	/^    def __init__(self, scanner):$/;"	kind:member	line:2
+__init__	../scanner.py	/^    def __init__(self, text):$/;"	kind:member	line:8
+__str__	../helper.py	/^    def __str__(self):$/;"	kind:member	line:105
+__str__	../helper.py	/^    def __str__(self):$/;"	kind:member	line:117
+__str__	../helper.py	/^    def __str__(self):$/;"	kind:member	line:128
+__str__	../helper.py	/^    def __str__(self):$/;"	kind:member	line:139
+__str__	../helper.py	/^    def __str__(self):$/;"	kind:member	line:151
+__str__	../helper.py	/^    def __str__(self):$/;"	kind:member	line:33
+__str__	../helper.py	/^    def __str__(self):$/;"	kind:member	line:57
+__str__	../helper.py	/^    def __str__(self):$/;"	kind:member	line:70
+__str__	../helper.py	/^    def __str__(self):$/;"	kind:member	line:82
+__str__	../helper.py	/^    def __str__(self):$/;"	kind:member	line:93
+accept	../helper.py	/^    def accept(self, visitor):$/;"	kind:member	line:102
+accept	../helper.py	/^    def accept(self, visitor):$/;"	kind:member	line:114
+accept	../helper.py	/^    def accept(self, visitor):$/;"	kind:member	line:125
+accept	../helper.py	/^    def accept(self, visitor):$/;"	kind:member	line:136
+accept	../helper.py	/^    def accept(self, visitor):$/;"	kind:member	line:148
+accept	../helper.py	/^    def accept(self, visitor):$/;"	kind:member	line:30
+accept	../helper.py	/^    def accept(self, visitor):$/;"	kind:member	line:67
+accept	../helper.py	/^    def accept(self, visitor):$/;"	kind:member	line:79
+advance	../parser.py	/^    def advance(self):$/;"	kind:member	line:185
+assign	../helper.py	/^    def assign(self, id, value):$/;"	kind:member	line:46
+check	../parser.py	/^    def check(self, token):$/;"	kind:member	line:191
+convert	../helper.py	/^def convert(node):$/;"	kind:function	line:1
+define	../helper.py	/^    def define(self, id):$/;"	kind:member	line:43
+evaluate	../helper.py	/^    def evaluate(self):$/;"	kind:member	line:90
+expect	../parser.py	/^    def expect(self, token):$/;"	kind:member	line:178
+f	../main.py	/^f = open("sample1.aspl")$/;"	kind:variable	line:6
+final	../main.py	/^final = []$/;"	kind:variable	line:20
+get	../helper.py	/^    def get(self, id):$/;"	kind:member	line:49
+get_next	../scanner.py	/^    def get_next(self):$/;"	kind:member	line:136
+helper.py	../helper.py	1;"	kind:file	line:1
+interpreter	../main.py	/^interpreter = Interpreter(final)$/;"	kind:variable	line:26
+keywords	../scanner.py	/^keywords = ["var", "fun", "return", "if", "else"]$/;"	kind:variable	line:1
+main.py	../main.py	1;"	kind:file	line:1
+match	../parser.py	/^    def match(self, token):$/;"	kind:member	line:172
+ops	../scanner.py	/^ops = ["++", "--", "+", "-", "*", "\/", "=", "==", "(", ")", "{", "}",","]$/;"	kind:variable	line:2
+parse	../parser.py	/^    def parse(self):$/;"	kind:member	line:211
+parse_assign_exp	../parser.py	/^    def parse_assign_exp(self):$/;"	kind:member	line:7
+parse_declaration	../parser.py	/^    def parse_declaration(self):$/;"	kind:member	line:20
+parse_expression	../parser.py	/^    def parse_expression(self):$/;"	kind:member	line:28
+parse_factor	../parser.py	/^    def parse_factor(self):$/;"	kind:member	line:96
+parse_function	../parser.py	/^    def parse_function(self):$/;"	kind:member	line:69
+parse_program	../parser.py	/^    def parse_program(self):$/;"	kind:member	line:202
+parse_statement	../parser.py	/^    def parse_statement(self):$/;"	kind:member	line:143
+parse_term	../parser.py	/^    def parse_term(self):$/;"	kind:member	line:57
+parser	../main.py	/^parser = Parser(scanner)$/;"	kind:variable	line:11
+parser.py	../parser.py	1;"	kind:file	line:1
+run	../helper.py	/^    def run(self):$/;"	kind:member	line:160
+scan	../scanner.py	/^    def scan(self, str, cur, line, col):$/;"	kind:member	line:116
+scan_alnum	../scanner.py	/^    def scan_alnum(self, str, cur, line, col):$/;"	kind:member	line:14
+scan_num	../scanner.py	/^    def scan_num(self, str, cur, line, col):$/;"	kind:member	line:25
+scan_other	../scanner.py	/^    def scan_other(self, str, cur, line, col):$/;"	kind:member	line:34
+scanner	../main.py	/^scanner = Scanner(text)$/;"	kind:variable	line:9
+scanner.py	../scanner.py	1;"	kind:file	line:1
+special	../scanner.py	/^special = [";"]$/;"	kind:variable	line:3
+statement_obj	../main.py	/^    statement_obj = convert(statement)$/;"	kind:variable	line:22
+text	../main.py	/^text = f.read()$/;"	kind:variable	line:7
+tree	../main.py	/^tree = parser.parse()$/;"	kind:variable	line:12
+visit_assignment	../helper.py	/^    def visit_assignment(self, assignment):$/;"	kind:member	line:194
+visit_declaration	../helper.py	/^    def visit_declaration(self, declaration):$/;"	kind:member	line:178
+visit_expression	../helper.py	/^    def visit_expression(self, expression):$/;"	kind:member	line:185
+visit_function_call	../helper.py	/^    def visit_function_call(self, function_call):$/;"	kind:member	line:169
+visit_return	../helper.py	/^    def visit_return(self, return_s):$/;"	kind:member	line:181
+visit_variable	../helper.py	/^    def visit_variable(self, variable):$/;"	kind:member	line:166
