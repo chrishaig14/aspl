@@ -1,5 +1,6 @@
 from colorama import Fore
 
+
 def convert(node):
     if node["type"] == "Declaration":
         return Declaration(node)
@@ -37,13 +38,18 @@ class FunctionCall:
             str([str(arg) for arg in self.args]) + ")"
 
 
-class Environment:
-    def __init__(self, parent=None):
-        self.parent = parent
-        self.dict = {}
+class Store:
+    def make_variable(self, name):
+        if name not in self.names_dict:
+            self.names_dict[name] = 1
 
-    def define(self, id):
+        id = name + "(" + str(self.names_dict[name]) + ")"
         self.dict[id] = None
+        return id
+
+    def __init__(self):
+        self.dict = {}
+        self.names_dict = {}
 
     def assign(self, id, value):
         self.dict[id] = value
@@ -51,15 +57,72 @@ class Environment:
     def get(self, id):
         if id in self.dict:
             return self.dict[id]
-        if self.parent is not None:
-            return self.parent.get(id)
-        print("### ERROR: Undefined variable", id, "###")
+        print(
+            Fore.RED +
+            "### ERROR: Undefined variable",
+            id,
+            "###" +
+            Fore.RESET)
         return self.dict[id]
 
     def __str__(self):
+        return "STORE:\nvariables: \n" + \
+            str(self.dict) + "\nnames: \n" + str(self.names_dict)
+
+
+class Environment:
+    def __init__(self, store, parent=None):
+        self.parent = parent
+        self.dict = {}
+        self.store = store
+
+    def define(self, name):
+        id = self.store.make_variable(name)
+        self.dict[name] = id
+        print(Fore.GREEN, "DEFINED NEW VARIABLE: ", name, " with id ", id)
+        print(self.store)
+        print(self)
+        print(Fore.RESET)
+
+    def assign(self, name, value):
+        if name in self.dict:
+            id = self.dict[name]
+            self.store.assign(id, value)
+            print(Fore.MAGENTA, "Assigning value", value, " to variable ", name, Fore.RESET)
+            print(self.store)
+        else:
+            self.parent.assign(name, value)
+            print(
+                Fore.RED,
+                "#### ERROR: Trying to assign to undefined variable",
+                name,
+                "###",
+                Fore.RESET)
+
+    def get(self, name):
+        if name in self.dict:
+            id = self.dict[name]
+            value = self.store.get(id)
+            print(Fore.YELLOW, "Getting variable ", name, " with id ", id, " = ", value, Fore.RESET)
+            return value
+        else:
+            return self.parent.get(name)
+            print(
+                Fore.RED,
+                "#### ERROR: Trying to get value of undefined variable",
+                name,
+                "###",
+                Fore.RESET)
+
+    def __str__(self):
         return str(self.dict)
+
     def __del__(self):
-        print(Fore.RED + "################# DESTROYING ENVIRONMENT" + str(self) + Fore.RESET)
+        print(
+            Fore.RED +
+            "################# DESTROYING ENVIRONMENT" +
+            str(self) +
+            Fore.RESET)
 
 
 class Expression:
@@ -102,6 +165,7 @@ class Function:
     def __init__(self, node):
         self.params = [par["data"] for par in node["params"]]
         self.statements = [convert(stat) for stat in node["statements"]]
+        self.closure = []
 
     def accept(self, visitor):
         return self
@@ -110,6 +174,7 @@ class Function:
         # return "FUN_STR"
         return "(fun " + str(self.params) + " " + \
             str([str(stat) for stat in self.statements]) + ")"
+
     def __repr__(self):
         return "FUN_REPR"
 
@@ -162,7 +227,8 @@ class Assignment:
 class Interpreter:
     def __init__(self, program):
         self.program = program
-        self.environment = Environment()
+        self.store = Store()
+        self.environment = Environment(self.store)
         self.return_value = None
         self.set_return_val = False
 
@@ -176,17 +242,23 @@ class Interpreter:
         return self.environment.get(variable.id)
 
     def visit_function_call(self, function_call):
+        print("CURRENT ENVIRONMENT IS: ", Fore.CYAN, self.environment)
+        print("CURRENT STORE IS: ", self.store, Fore.RESET)
         args = [arg.accept(self) for arg in function_call.args]
         if function_call.id == "print":
             print(args[0])
             return
-        self.environment = Environment(self.environment)
+        self.environment = Environment(self.store, self.environment)
+        print("CALLING FUNCTION : ", function_call.id)
         function = self.environment.get(function_call.id)
+        
+        print("CALLING FUNCTION : ", function)
         for i in range(len(function.params)):
             param = function.params[i]
             arg = args[i]
-            print("PARAM:",param)
+            print("PARAM:", param)
             print("ARG:", arg)
+            self.environment.define(param)
             self.environment.assign(param, arg)
         for stat in function.statements:
             stat.accept(self)

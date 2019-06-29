@@ -2,11 +2,18 @@ var z;
 z = 10;
 var plus_z;
 var sum;
+var extra;
+extra = 10;
 sum = fun (a, b){
-	return a + b;
-}
+
+	return a + extra+ b;
+};
 plus_z = fun (x, y){
+	var extra;
+	extra = 5;
 	return x + sum(y,z);
 };
 var __retval;
+extra = 11;
 __retval = plus_z(1,3);
+print(__retval);
