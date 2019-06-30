@@ -20,10 +20,11 @@ print("##### PRESS ENTER TO RUN #####")
 input()
 
 final = []
-for statement in tree:
-    statement_obj = convert(statement)
-    final.append(statement_obj)
-    print(statement_obj)
 
-interpreter = Interpreter(final)
+# for statement in tree:
+    # statement_obj = convert(statement)
+    # final.append(statement_obj)
+    # print(statement_obj)
+
+interpreter = Interpreter(tree)
 interpreter.run()

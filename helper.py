@@ -1,11 +1,12 @@
-from colorama import Fore
+from colorama import Fore, Back
+import copy
 
-
-def convert(node):
+def convert(node, env=None):
+    
     if node["type"] == "Declaration":
         return Declaration(node)
     if node["type"] == "Assignment":
-        return Assignment(node)
+        return Assignment(node, env)
     if node["type"] == "Expression":
         return Expression(node)
     if node["type"] == "Variable":
@@ -22,7 +23,7 @@ def convert(node):
         print("Going to convert function : ", node)
         input()
         input()
-        return Function(node)
+        return Function(node, env)
 
 
 class FunctionCall:
@@ -41,7 +42,9 @@ class FunctionCall:
 class Store:
     def make_variable(self, name):
         if name not in self.names_dict:
-            self.names_dict[name] = 1
+            self.names_dict[name] = 0
+        else:
+            self.names_dict[name] += 1
 
         id = name + "(" + str(self.names_dict[name]) + ")"
         self.dict[id] = None
@@ -88,7 +91,13 @@ class Environment:
         if name in self.dict:
             id = self.dict[name]
             self.store.assign(id, value)
-            print(Fore.MAGENTA, "Assigning value", value, " to variable ", name, Fore.RESET)
+            print(
+                Fore.MAGENTA,
+                "Assigning value",
+                value,
+                " to variable ",
+                name, " with id ", id,
+                Fore.RESET)
             print(self.store)
         else:
             self.parent.assign(name, value)
@@ -103,7 +112,15 @@ class Environment:
         if name in self.dict:
             id = self.dict[name]
             value = self.store.get(id)
-            print(Fore.YELLOW, "Getting variable ", name, " with id ", id, " = ", value, Fore.RESET)
+            print(
+                Fore.YELLOW,
+                "Getting variable ",
+                name,
+                " with id ",
+                id,
+                " = ",
+                value,
+                Fore.RESET)
             return value
         else:
             return self.parent.get(name)
@@ -130,7 +147,6 @@ class Expression:
         self.first = convert(node["first"])
         self.second = convert(node["second"])
         self.op = node["op"]
-
     def accept(self, visitor):
         return visitor.visit_expression(self)
 
@@ -160,12 +176,14 @@ class String:
     def __str__(self):
         return "(string " + self.string + ")"
 
-
 class Function:
-    def __init__(self, node):
+    def __init__(self, node, env):
+        
         self.params = [par["data"] for par in node["params"]]
         self.statements = [convert(stat) for stat in node["statements"]]
-        self.closure = []
+        self.closure = copy.deepcopy(env)
+        self.closure.store = env.store # not SO DEEP COPY, MAINTAIN UNIQUE STORE
+        print(Back.RED + Fore.WHITE, "CLOSURE: ", self.closure, Back.RESET + Fore.RESET)
 
     def accept(self, visitor):
         return self
@@ -182,7 +200,6 @@ class Function:
 class Return:
     def __init__(self, node):
         self.exp = convert(node["exp"])
-
     def accept(self, visitor):
         return visitor.visit_return(self)
 
@@ -213,9 +230,10 @@ class Number:
 
 
 class Assignment:
-    def __init__(self, node):
+    def __init__(self, node, env):
+        
         self.lvalue = convert(node["lvalue"])
-        self.rvalue = convert(node["rvalue"])
+        self.rvalue = convert(node["rvalue"], env)
 
     def accept(self, visitor):
         visitor.visit_assignment(self)
@@ -234,8 +252,9 @@ class Interpreter:
 
     def run(self):
         for statement in self.program:
-            input()
-            statement.accept(self)
+            print(Back.CYAN + Fore.BLACK, statement, Back.RESET + Fore.RESET)
+            node = convert(statement, self.environment)
+            node.accept(self)
             print(self.environment)
 
     def visit_variable(self, variable):
@@ -248,10 +267,15 @@ class Interpreter:
         if function_call.id == "print":
             print(args[0])
             return
-        self.environment = Environment(self.store, self.environment)
+        # self.environment = Environment(self.store, self.environment)
+        
         print("CALLING FUNCTION : ", function_call.id)
         function = self.environment.get(function_call.id)
-        
+        parent = self.environment
+        new = copy.deepcopy(function.closure)
+        new.store = self.environment.store
+        new.parent = parent
+        self.environment = new
         print("CALLING FUNCTION : ", function)
         for i in range(len(function.params)):
             param = function.params[i]
@@ -279,8 +303,12 @@ class Interpreter:
         return val
 
     def visit_expression(self, expression):
+        print(Back.RED, "FIRST: ", expression.first, Back.RESET)
+        print(Back.RED, "SECOND: ", expression.second, Back.RESET)
         xxx = expression.first.accept(self)
         second = expression.second.accept(self)
+        print(Back.RED, "FIRST: ", expression.first, Back.RESET)
+        print(Back.RED, "SECOND: ", expression.second, Back.RESET)
         if expression.op == "plus":
             r = xxx + second
             return r
