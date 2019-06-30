@@ -3,6 +3,16 @@ import copy
 
 counter = 0
 
+DEBUG = False
+
+def log(*args):
+    print(*args)
+
+
+def debug(*args):
+    if DEBUG:
+        print(*args)
+
 
 def convert(node, env=None):
 
@@ -24,8 +34,8 @@ def convert(node, env=None):
         return Return(node)
     if node["type"] == "Function":
         # print("Going to convert function : ", node)
-        input()
-        input()
+        # input()
+        # input()
         return Function(node, env)
 
 
@@ -63,7 +73,7 @@ class Store:
     def get(self, id):
         if id in self.dict:
             return self.dict[id]
-        print(
+        log(
             Fore.RED +
             "### ERROR: Undefined variable",
             id,
@@ -77,7 +87,7 @@ class Store:
 
 class Environment:
     def __init__(self, store, parent, name):
-        print(
+        debug(
             Back.LIGHTMAGENTA_EX +
             Fore.BLACK,
             "NEW ENVIRONMENT CREATED",
@@ -95,14 +105,14 @@ class Environment:
     def define(self, name):
         id = self.store.make_variable(name)
         self.dict[name] = id
-        print(Fore.GREEN, "DEFINED NEW VARIABLE: ", name, " with id ", id)
-        print(self.store)
-        print(self)
-        print(Fore.RESET)
+        debug(Fore.GREEN, "DEFINED NEW VARIABLE: ", name, " with id ", id)
+        debug(self.store)
+        debug(self)
+        debug(Fore.RESET)
 
     def assign(self, name, value):
         if self.number == 2:
-            print(
+            debug(
                 Back.RED,
                 "     ",
                 Back.GREEN +
@@ -113,17 +123,17 @@ class Environment:
         if name in self.dict:
             id = self.dict[name]
             self.store.assign(id, value)
-            print(
+            debug(
                 Fore.MAGENTA,
                 "Assigning value",
                 value,
                 " to variable ",
                 name, " with id ", id,
                 Fore.RESET)
-            print(self.store)
+            debug(self.store)
         else:
             self.parent.assign(name, value)
-            print(
+            log(
                 Fore.RED,
                 "#### ERROR: Trying to assign to undefined variable",
                 name,
@@ -137,7 +147,7 @@ class Environment:
 
     def get(self, name):
         if self.number == 2:
-            print(
+            debug(
                 Back.RED,
                 "     ",
                 Back.GREEN +
@@ -148,7 +158,7 @@ class Environment:
         if name in self.dict:
             id = self.dict[name]
             value = self.store.get(id)
-            print(
+            debug(
                 Fore.YELLOW,
                 "Getting variable ",
                 name,
@@ -160,7 +170,7 @@ class Environment:
             return value
         else:
             return self.parent.get(name)
-            print(
+            log(
                 Fore.RED,
                 "#### ERROR: Trying to get value of undefined variable",
                 name,
@@ -168,7 +178,7 @@ class Environment:
                 Fore.RESET)
 
     def __str__(self):
-        return "ENVIRONMENT " + str(self.number) + ":" +  str(self.dict)
+        return "ENVIRONMENT " + str(self.number) + ":" + str(self.dict)
 
     # def __del__(self):
     #     #### BREAKPOINT HERE WHY IS THERE AN EXTRA ENVIRONMENT???
@@ -220,7 +230,7 @@ class Function:
 
         self.params = [par["data"] for par in node["params"]]
         self.statements = [convert(stat) for stat in node["statements"]]
-        print(
+        debug(
             Back.YELLOW +
             Fore.BLACK,
             "NEW CLOSURE FOR FUNCTION",
@@ -229,7 +239,7 @@ class Function:
         self.closure = env.copy()
         self.closure.name = "CLOSURE FOR FUNCTION"
         self.closure.store = env.store  # not SO DEEP COPY, MAINTAIN UNIQUE STORE
-        print(
+        debug(
             Back.RED +
             Fore.WHITE,
             "CLOSURE: ",
@@ -299,7 +309,7 @@ class Interpreter:
     def __init__(self, program):
         self.program = program
         self.store = Store()
-        print(
+        debug(
             Back.YELLOW +
             Fore.BLACK,
             "NEW GLOBAL ENVIRONMENT",
@@ -311,11 +321,11 @@ class Interpreter:
 
     def run(self):
         for statement in self.program:
-            print(Back.CYAN + Fore.BLACK, statement, Back.RESET + Fore.RESET)
+            debug(Back.CYAN + Fore.BLACK, statement, Back.RESET + Fore.RESET)
             node = convert(statement, self.environment)
             node.accept(self)
-            print(self.environment)
-        print("COUNTER: ", counter)
+            debug(self.environment)
+        debug("COUNTER: ", counter)
 
     def visit_variable(self, variable):
         return self.environment.get(variable.id)
@@ -326,7 +336,7 @@ class Interpreter:
         args = [arg.accept(self) for arg in function_call.args]
         if function_call.id == "print":
             # print(Fore.RED, "CALLING PRINT WITH ARGUMENTS: ", args, Fore.RESET)
-            print(Back.GREEN + Fore.BLACK, args[0], Back.RESET + Fore.RESET)
+            log(Back.GREEN + Fore.BLACK, args[0], Back.RESET + Fore.RESET)
             return
         # self.environment = Environment(self.store, self.environment)
 
@@ -336,7 +346,7 @@ class Interpreter:
         # new = self.environment.copy()
         new = function.closure.copy()
         new.name = "ENVIRONMENT FOR " + function_call.id
-        print(
+        debug(
             Back.YELLOW + Fore.BLACK,
             "NEW ENVIRONMENT FOR FUNCTION: ",
             function_call.id,
@@ -344,12 +354,18 @@ class Interpreter:
         new.store = self.environment.store
         new.parent = parent
         self.environment = new
-        print(Back.RED, "CALLING FUNCTION", function_call.id, " WITH ENVIRONMENT", new.number, Back.RESET)
+        debug(
+            Back.RED,
+            "CALLING FUNCTION",
+            function_call.id,
+            " WITH ENVIRONMENT",
+            new.number,
+            Back.RESET)
         for i in range(len(function.params)):
             param = function.params[i]
             arg = args[i]
-            print("PARAM:", param)
-            print("ARG:", arg)
+            debug("PARAM:", param)
+            debug("ARG:", arg)
             self.environment.define(param)
             self.environment.assign(param, arg)
         for stat in function.statements:
