@@ -325,7 +325,8 @@ class Interpreter:
         # print("CURRENT STORE IS: ", self.store, Fore.RESET)
         args = [arg.accept(self) for arg in function_call.args]
         if function_call.id == "print":
-            print(args[0])
+            # print(Fore.RED, "CALLING PRINT WITH ARGUMENTS: ", args, Fore.RESET)
+            print(Back.GREEN + Fore.BLACK, args[0], Back.RESET + Fore.RESET)
             return
         # self.environment = Environment(self.store, self.environment)
 
