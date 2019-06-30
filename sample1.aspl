@@ -1,19 +1,20 @@
-var z;
-z = 10;
-var plus_z;
-var sum;
-var extra;
-extra = 10;
-sum = fun (a, b){
-
-	return a + extra+ b;
+var sum_x_and_a;
+var call_sum_x_and_a_add_b;
+var a;
+var x;
+sum_x_and_a = fun (y){
+	x = 5;
+	return x + a;
 };
-plus_z = fun (x, y){
-	var extra;
-	extra = 5;
-	return x + sum(y,z);
+call_sum_x_and_a_add_b = fun(b){
+	var a;
+	a = 13;
+	var x;
+	x = 1;
+	return sum_x_and_a(b) + b;
 };
-var __retval;
-extra = 11;
-__retval = plus_z(1,3);
-print(__retval);
+x = 7;
+a = 1;
+print("RESULT IS ");
+print(call_sum_x_and_a_add_b(5));
+print(x);

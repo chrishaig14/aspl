@@ -1,8 +1,11 @@
 from colorama import Fore, Back
 import copy
 
+counter = 0
+
+
 def convert(node, env=None):
-    
+
     if node["type"] == "Declaration":
         return Declaration(node)
     if node["type"] == "Assignment":
@@ -20,7 +23,7 @@ def convert(node, env=None):
     if node["type"] == "Return":
         return Return(node)
     if node["type"] == "Function":
-        print("Going to convert function : ", node)
+        # print("Going to convert function : ", node)
         input()
         input()
         return Function(node, env)
@@ -69,13 +72,23 @@ class Store:
         return self.dict[id]
 
     def __str__(self):
-        return "STORE:\nvariables: \n" + \
-            str(self.dict) + "\nnames: \n" + str(self.names_dict)
+        return "STORE:" + str(self.dict)
 
 
 class Environment:
-    def __init__(self, store, parent=None):
+    def __init__(self, store, parent, name):
+        print(
+            Back.LIGHTMAGENTA_EX +
+            Fore.BLACK,
+            "NEW ENVIRONMENT CREATED",
+            Back.RESET,
+            Fore.RESET)
+        self.name = name
         self.parent = parent
+
+        global counter
+        self.number = counter
+        counter += 1
         self.dict = {}
         self.store = store
 
@@ -88,6 +101,15 @@ class Environment:
         print(Fore.RESET)
 
     def assign(self, name, value):
+        if self.number == 2:
+            print(
+                Back.RED,
+                "     ",
+                Back.GREEN +
+                Fore.RED,
+                "ASSIGN ENV 2",
+                Back.RESET +
+                Fore.RESET)
         if name in self.dict:
             id = self.dict[name]
             self.store.assign(id, value)
@@ -108,7 +130,21 @@ class Environment:
                 "###",
                 Fore.RESET)
 
+    def copy(self):
+        new = Environment(self.store, self.parent, self.name)
+        new.dict = copy.deepcopy(self.dict)
+        return new
+
     def get(self, name):
+        if self.number == 2:
+            print(
+                Back.RED,
+                "     ",
+                Back.GREEN +
+                Fore.RED,
+                "ASSIGN ENV 2",
+                Back.RESET +
+                Fore.RESET)
         if name in self.dict:
             id = self.dict[name]
             value = self.store.get(id)
@@ -132,14 +168,15 @@ class Environment:
                 Fore.RESET)
 
     def __str__(self):
-        return str(self.dict)
+        return "ENVIRONMENT " + str(self.number) + ":" +  str(self.dict)
 
-    def __del__(self):
-        print(
-            Fore.RED +
-            "################# DESTROYING ENVIRONMENT" +
-            str(self) +
-            Fore.RESET)
+    # def __del__(self):
+    #     #### BREAKPOINT HERE WHY IS THERE AN EXTRA ENVIRONMENT???
+    #     print(
+    #         Fore.RED +
+    #         "################# DESTROYING ENVIRONMENT " + str(self.number) + " NAME: " + self.name + ":::" +
+    #         str(self) +
+    #         Fore.RESET)
 
 
 class Expression:
@@ -147,6 +184,7 @@ class Expression:
         self.first = convert(node["first"])
         self.second = convert(node["second"])
         self.op = node["op"]
+
     def accept(self, visitor):
         return visitor.visit_expression(self)
 
@@ -176,14 +214,28 @@ class String:
     def __str__(self):
         return "(string " + self.string + ")"
 
+
 class Function:
     def __init__(self, node, env):
-        
+
         self.params = [par["data"] for par in node["params"]]
         self.statements = [convert(stat) for stat in node["statements"]]
-        self.closure = copy.deepcopy(env)
-        self.closure.store = env.store # not SO DEEP COPY, MAINTAIN UNIQUE STORE
-        print(Back.RED + Fore.WHITE, "CLOSURE: ", self.closure, Back.RESET + Fore.RESET)
+        print(
+            Back.YELLOW +
+            Fore.BLACK,
+            "NEW CLOSURE FOR FUNCTION",
+            Back.RESET +
+            Fore.RESET)
+        self.closure = env.copy()
+        self.closure.name = "CLOSURE FOR FUNCTION"
+        self.closure.store = env.store  # not SO DEEP COPY, MAINTAIN UNIQUE STORE
+        print(
+            Back.RED +
+            Fore.WHITE,
+            "CLOSURE: ",
+            self.closure,
+            Back.RESET +
+            Fore.RESET)
 
     def accept(self, visitor):
         return self
@@ -200,6 +252,7 @@ class Function:
 class Return:
     def __init__(self, node):
         self.exp = convert(node["exp"])
+
     def accept(self, visitor):
         return visitor.visit_return(self)
 
@@ -231,7 +284,7 @@ class Number:
 
 class Assignment:
     def __init__(self, node, env):
-        
+
         self.lvalue = convert(node["lvalue"])
         self.rvalue = convert(node["rvalue"], env)
 
@@ -246,7 +299,13 @@ class Interpreter:
     def __init__(self, program):
         self.program = program
         self.store = Store()
-        self.environment = Environment(self.store)
+        print(
+            Back.YELLOW +
+            Fore.BLACK,
+            "NEW GLOBAL ENVIRONMENT",
+            Back.RESET +
+            Fore.RESET)
+        self.environment = Environment(self.store, None, "GLOBAL")
         self.return_value = None
         self.set_return_val = False
 
@@ -256,27 +315,35 @@ class Interpreter:
             node = convert(statement, self.environment)
             node.accept(self)
             print(self.environment)
+        print("COUNTER: ", counter)
 
     def visit_variable(self, variable):
         return self.environment.get(variable.id)
 
     def visit_function_call(self, function_call):
-        print("CURRENT ENVIRONMENT IS: ", Fore.CYAN, self.environment)
-        print("CURRENT STORE IS: ", self.store, Fore.RESET)
+        # print("CURRENT ENVIRONMENT IS: ", Fore.CYAN, self.environment)
+        # print("CURRENT STORE IS: ", self.store, Fore.RESET)
         args = [arg.accept(self) for arg in function_call.args]
         if function_call.id == "print":
             print(args[0])
             return
         # self.environment = Environment(self.store, self.environment)
-        
-        print("CALLING FUNCTION : ", function_call.id)
+
+        # print("CALLING FUNCTION : ", function_call.id)
         function = self.environment.get(function_call.id)
         parent = self.environment
-        new = copy.deepcopy(function.closure)
+        # new = self.environment.copy()
+        new = function.closure.copy()
+        new.name = "ENVIRONMENT FOR " + function_call.id
+        print(
+            Back.YELLOW + Fore.BLACK,
+            "NEW ENVIRONMENT FOR FUNCTION: ",
+            function_call.id,
+            Back.RESET + Fore.RESET)
         new.store = self.environment.store
         new.parent = parent
         self.environment = new
-        print("CALLING FUNCTION : ", function)
+        print(Back.RED, "CALLING FUNCTION", function_call.id, " WITH ENVIRONMENT", new.number, Back.RESET)
         for i in range(len(function.params)):
             param = function.params[i]
             arg = args[i]
@@ -288,7 +355,11 @@ class Interpreter:
             stat.accept(self)
             if self.set_return_val:
                 self.set_return_val = False
+
+                name = self.environment.parent.name
+                self.environment.parent.name = "PARENT"
                 self.environment = self.environment.parent
+                self.environment.name = name
                 return self.return_value
 
         # return None
@@ -303,12 +374,12 @@ class Interpreter:
         return val
 
     def visit_expression(self, expression):
-        print(Back.RED, "FIRST: ", expression.first, Back.RESET)
-        print(Back.RED, "SECOND: ", expression.second, Back.RESET)
+        # print(Back.RED, "FIRST: ", expression.first, Back.RESET)
+        # print(Back.RED, "SECOND: ", expression.second, Back.RESET)
         xxx = expression.first.accept(self)
         second = expression.second.accept(self)
-        print(Back.RED, "FIRST: ", expression.first, Back.RESET)
-        print(Back.RED, "SECOND: ", expression.second, Back.RESET)
+        # print(Back.RED, "FIRST: ", expression.first, Back.RESET)
+        # print(Back.RED, "SECOND: ", expression.second, Back.RESET)
         if expression.op == "plus":
             r = xxx + second
             return r
@@ -316,7 +387,7 @@ class Interpreter:
             return xxx - second
 
     def visit_assignment(self, assignment):
-        print("My rvalue is ", assignment.rvalue)
+        # print("My rvalue is ", assignment.rvalue)
         val = assignment.rvalue.accept(self)
         self.environment.assign(assignment.lvalue.id,
                                 val)
