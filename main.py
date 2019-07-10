@@ -1,9 +1,13 @@
+from interpreter import Interpreter
 from parser import Parser
 
-from helper import *
+# from helper import *
+from ast import make_ast_node
 from scanner import Scanner
+import logger
 
-
+logger.ACTIVE = False
+logger.DEBUG = True
 
 f = open("sample1.aspl")
 text = f.read()
@@ -19,12 +23,16 @@ for statement in tree:
 print("##### PRESS ENTER TO RUN #####")
 input()
 
-final = []
+logger.ACTIVE = True
+logger.DEBUG = False
 
-# for statement in tree:
-    # statement_obj = convert(statement)
-    # final.append(statement_obj)
-    # print(statement_obj)
+prog = []
 
-interpreter = Interpreter(tree)
+for node in tree:
+    # print("NODE: ", node)
+    node = make_ast_node(node)
+    prog.append(node)
+    print(node)
+
+interpreter = Interpreter(prog)
 interpreter.run()

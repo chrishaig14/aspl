@@ -1,0 +1,130 @@
+from colorama import Back, Fore
+
+from environment import Environment
+import logger
+from store import Store
+
+
+class Interpreter:
+    def __init__(self, program):
+        self.program = program
+        self.store = Store()
+        logger.debug(
+            Back.YELLOW +
+            Fore.BLACK,
+            "NEW GLOBAL ENVIRONMENT",
+            Back.RESET +
+            Fore.RESET)
+        self.environment = Environment(self.store, None, "GLOBAL")
+        self.return_value = None
+        self.set_return_val = False
+
+    def run(self):
+        for node in self.program:
+            logger.debug(Back.CYAN + Fore.BLACK, node, Back.RESET + Fore.RESET)
+            # node = convert(statement, self.environment)
+            node.accept(self)
+            logger.debug(self.environment)
+        # logger.debug("COUNTER: ", counter)
+
+    def visit_variable(self, variable):
+        return self.environment.get(variable.id)
+
+    def visit_function(self, function):
+        closure = self.environment.copy()
+        closure.name = "CLOSURE FOR FUNCTION"
+        closure.store = self.environment.store  # not SO DEEP COPY, MAINTAIN UNIQUE STORE
+        return {"function": function, "closure": closure}
+
+    def visit_function_call(self, function_call):
+        # print("CURRENT ENVIRONMENT IS: ", Fore.CYAN, self.environment)
+        # print("CURRENT STORE IS: ", self.store, Fore.RESET)
+        logger.debug(Back.RED, "RUN", Back.RESET, function_call)
+        args = [arg.accept(self) for arg in function_call.args]
+        if function_call.id == "print":
+            # print(Fore.RED, "CALLING PRINT WITH ARGUMENTS: ", args, Fore.RESET)
+            logger.log(Back.GREEN + Fore.BLACK, args[0], Back.RESET + Fore.RESET)
+            return
+        # self.environment = Environment(self.store, self.environment)
+
+        # print("CALLING FUNCTION : ", function_call.id)
+
+
+
+        d = self.environment.get(function_call.id)
+        function = d["function"]
+        closure = d["closure"]
+
+        print("FUNCTION: ", d)
+
+
+
+
+        parent = self.environment
+        # new = self.environment.copy()
+        new = closure.copy()
+        new.name = "ENVIRONMENT FOR " + function_call.id
+        logger.debug(
+            Back.YELLOW + Fore.BLACK,
+            "NEW ENVIRONMENT FOR FUNCTION: ",
+            function_call.id,
+            Back.RESET + Fore.RESET)
+        new.store = self.environment.store
+        new.parent = parent
+        self.environment = new
+        logger.debug(
+            Back.RED,
+            "CALLING FUNCTION",
+            function_call.id,
+            " WITH ENVIRONMENT", new,
+            Back.RESET)
+        for i in range(len(function.params)):
+            param = function.params[i]
+            arg = args[i]
+            logger.debug("PARAM:", param)
+            logger.debug("ARG:", arg)
+            self.environment.define(param)
+            self.environment.assign(param, arg)
+        for stat in function.statements:
+            stat.accept(self)
+            if self.set_return_val:
+                self.set_return_val = False
+
+                name = self.environment.parent.name
+                self.environment.parent.name = "PARENT"
+                self.environment = self.environment.parent
+                self.environment.name = name
+                return self.return_value
+
+        # return None
+
+    def visit_declaration(self, declaration):
+        logger.debug(Back.RED, "RUN", Back.RESET, declaration)
+        self.environment.define(declaration.id)
+
+    def visit_return(self, return_s):
+        logger.debug(Back.RED, "RUN", Back.RESET, return_s)
+        val = return_s.exp.accept(self)
+        self.return_value = val
+        self.set_return_val = True
+        return val
+
+    def visit_expression(self, expression):
+        # print(Back.RED, "FIRST: ", expression.first, Back.RESET)
+        # print(Back.RED, "SECOND: ", expression.second, Back.RESET)
+        xxx = expression.first.accept(self)
+        second = expression.second.accept(self)
+        # print(Back.RED, "FIRST: ", expression.first, Back.RESET)
+        # print(Back.RED, "SECOND: ", expression.second, Back.RESET)
+        if expression.op == "plus":
+            r = xxx + second
+            return r
+        if expression.op == "minus":
+            return xxx - second
+
+    def visit_assignment(self, assignment):
+        # print("My rvalue is ", assignment.rvalue)
+        logger.debug(Back.RED, "RUN", Back.RESET, assignment)
+        val = assignment.rvalue.accept(self)
+        self.environment.assign(assignment.lvalue.id,
+                                val)
