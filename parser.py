@@ -1,5 +1,6 @@
 from colorama import Fore, Back, Style
 
+
 class Parser:
     def __init__(self, scanner):
         self.scanner = scanner
@@ -166,7 +167,7 @@ class Parser:
             exp = self.parse_expression()
             # print("RETURN EXPRESSION: ", exp)
             self.expect("semicolon")
-            return {"type":"Return", "exp":exp}
+            return {"type": "Return", "exp": exp}
 
         print("Error: expected statement, got", self.current_token["type"])
 
@@ -187,11 +188,11 @@ class Parser:
         self.previous_token = self.current_token
         self.current_token = self.scanner.get_next()
         self.current_token = {"type": self.current_token[0][0], "data": self.current_token[0]
-                              [1], "line": self.current_token[1], "col": self.current_token[2]}
+        [1], "line": self.current_token[1], "col": self.current_token[2]}
 
     def check(self, token):
         # print("accept token ", token, "? ",
-              # "current token ", self.current_token)
+        # "current token ", self.current_token)
         # print("self.current_token =", self.current_token)
         if self.current_token["type"] == token:
             # print("accept", token, " true")
@@ -213,7 +214,7 @@ class Parser:
         self.current_token = self.scanner.get_next()
         # print("current token: ", self.current_token)
         self.current_token = {"type": self.current_token[0][0], "data": self.current_token[0]
-                              [1], "line": self.current_token[1], "col": self.current_token[2]}
+        [1], "line": self.current_token[1], "col": self.current_token[2]}
         return self.parse_program()
         # token, line, col = self.scanner.get_next()
         # while token != "eof":

@@ -18,3 +18,4 @@ a = 1;
 print("RESULT IS ");
 print(call_sum_x_and_a_add_b(5));
 print(x);
+print(a);

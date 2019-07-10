@@ -5,6 +5,7 @@ counter = 0
 
 DEBUG = False
 
+
 def log(*args):
     print(*args)
 
@@ -15,7 +16,6 @@ def debug(*args):
 
 
 def convert(node, env=None):
-
     if node["type"] == "Declaration":
         return Declaration(node)
     if node["type"] == "Assignment":
@@ -49,7 +49,7 @@ class FunctionCall:
 
     def __str__(self):
         return "(function_call " + self.id + " " + \
-            str([str(arg) for arg in self.args]) + ")"
+               str([str(arg) for arg in self.args]) + ")"
 
 
 class Store:
@@ -200,7 +200,7 @@ class Expression:
 
     def __str__(self):
         return "(" + self.op + " " + str(self.first) + \
-            " " + str(self.second) + ")"
+               " " + str(self.second) + ")"
 
 
 class Declaration:
@@ -227,7 +227,6 @@ class String:
 
 class Function:
     def __init__(self, node, env):
-
         self.params = [par["data"] for par in node["params"]]
         self.statements = [convert(stat) for stat in node["statements"]]
         debug(
@@ -253,7 +252,7 @@ class Function:
     def __str__(self):
         # return "FUN_STR"
         return "(fun " + str(self.params) + " " + \
-            str([str(stat) for stat in self.statements]) + ")"
+               str([str(stat) for stat in self.statements]) + ")"
 
     def __repr__(self):
         return "FUN_REPR"
@@ -294,7 +293,6 @@ class Number:
 
 class Assignment:
     def __init__(self, node, env):
-
         self.lvalue = convert(node["lvalue"])
         self.rvalue = convert(node["rvalue"], env)
 
@@ -333,6 +331,7 @@ class Interpreter:
     def visit_function_call(self, function_call):
         # print("CURRENT ENVIRONMENT IS: ", Fore.CYAN, self.environment)
         # print("CURRENT STORE IS: ", self.store, Fore.RESET)
+        debug(Back.RED, "RUN", Back.RESET, function_call)
         args = [arg.accept(self) for arg in function_call.args]
         if function_call.id == "print":
             # print(Fore.RED, "CALLING PRINT WITH ARGUMENTS: ", args, Fore.RESET)
@@ -382,9 +381,11 @@ class Interpreter:
         # return None
 
     def visit_declaration(self, declaration):
+        debug(Back.RED, "RUN", Back.RESET, declaration)
         self.environment.define(declaration.id)
 
     def visit_return(self, return_s):
+        debug(Back.RED, "RUN", Back.RESET, return_s)
         val = return_s.exp.accept(self)
         self.return_value = val
         self.set_return_val = True
@@ -405,6 +406,7 @@ class Interpreter:
 
     def visit_assignment(self, assignment):
         # print("My rvalue is ", assignment.rvalue)
+        debug(Back.RED, "RUN", Back.RESET, assignment)
         val = assignment.rvalue.accept(self)
         self.environment.assign(assignment.lvalue.id,
                                 val)
