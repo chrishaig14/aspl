@@ -4,11 +4,11 @@ import logger
 
 counter = 0
 
-def make_ast_node(node, env=None):
+def make_ast_node(node):
     if node["type"] == "Declaration":
         return Declaration(node)
     if node["type"] == "Assignment":
-        return Assignment(node, env)
+        return Assignment(node)
     if node["type"] == "Expression":
         return Expression(node)
     if node["type"] == "Variable":
@@ -22,7 +22,7 @@ def make_ast_node(node, env=None):
     if node["type"] == "Return":
         return Return(node)
     if node["type"] == "Function":
-        return Function(node, env)
+        return Function(node)
 
 
 class FunctionCall:
@@ -75,7 +75,7 @@ class String:
 
 
 class Function:
-    def __init__(self, node, env):
+    def __init__(self, node):
         self.params = [par["data"] for par in node["params"]]
         self.statements = [make_ast_node(stat) for stat in node["statements"]]
         # logger.debug(
@@ -141,14 +141,13 @@ class Number:
 
 
 class Assignment:
-    def __init__(self, node, env):
+    def __init__(self, node):
         self.lvalue = make_ast_node(node["lvalue"])
-        self.rvalue = make_ast_node(node["rvalue"], env)
+        self.rvalue = make_ast_node(node["rvalue"])
 
     def accept(self, visitor):
         visitor.visit_assignment(self)
 
     def __str__(self):
         return "(assign " + str(self.lvalue) + " " + str(self.rvalue) + ")"
-
 
