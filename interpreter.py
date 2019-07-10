@@ -22,10 +22,8 @@ class Interpreter:
     def run(self):
         for node in self.program:
             logger.debug(Back.CYAN + Fore.BLACK, node, Back.RESET + Fore.RESET)
-            # node = convert(statement, self.environment)
             node.accept(self)
             logger.debug(self.environment)
-        # logger.debug("COUNTER: ", counter)
 
     def visit_variable(self, variable):
         return self.environment.get(variable.id)
@@ -37,19 +35,11 @@ class Interpreter:
         return {"function": function, "closure": closure}
 
     def visit_function_call(self, function_call):
-        # print("CURRENT ENVIRONMENT IS: ", Fore.CYAN, self.environment)
-        # print("CURRENT STORE IS: ", self.store, Fore.RESET)
         logger.debug(Back.RED, "RUN", Back.RESET, function_call)
         args = [arg.accept(self) for arg in function_call.args]
         if function_call.id == "print":
-            # print(Fore.RED, "CALLING PRINT WITH ARGUMENTS: ", args, Fore.RESET)
             logger.log(Back.GREEN + Fore.BLACK, args[0], Back.RESET + Fore.RESET)
             return
-        # self.environment = Environment(self.store, self.environment)
-
-        # print("CALLING FUNCTION : ", function_call.id)
-
-
 
         d = self.environment.get(function_call.id)
         function = d["function"]
@@ -57,11 +47,7 @@ class Interpreter:
 
         print("FUNCTION: ", d)
 
-
-
-
         parent = self.environment
-        # new = self.environment.copy()
         new = closure.copy()
         new.name = "ENVIRONMENT FOR " + function_call.id
         logger.debug(
@@ -96,8 +82,6 @@ class Interpreter:
                 self.environment.name = name
                 return self.return_value
 
-        # return None
-
     def visit_declaration(self, declaration):
         logger.debug(Back.RED, "RUN", Back.RESET, declaration)
         self.environment.define(declaration.id)
@@ -110,12 +94,8 @@ class Interpreter:
         return val
 
     def visit_expression(self, expression):
-        # print(Back.RED, "FIRST: ", expression.first, Back.RESET)
-        # print(Back.RED, "SECOND: ", expression.second, Back.RESET)
         xxx = expression.first.accept(self)
         second = expression.second.accept(self)
-        # print(Back.RED, "FIRST: ", expression.first, Back.RESET)
-        # print(Back.RED, "SECOND: ", expression.second, Back.RESET)
         if expression.op == "plus":
             r = xxx + second
             return r
@@ -123,7 +103,6 @@ class Interpreter:
             return xxx - second
 
     def visit_assignment(self, assignment):
-        # print("My rvalue is ", assignment.rvalue)
         logger.debug(Back.RED, "RUN", Back.RESET, assignment)
         val = assignment.rvalue.accept(self)
         self.environment.assign(assignment.lvalue.id,
