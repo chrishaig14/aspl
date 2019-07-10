@@ -85,6 +85,9 @@ class Interpreter:
     def visit_declaration(self, declaration):
         logger.debug(Back.RED, "RUN", Back.RESET, declaration)
         self.environment.define(declaration.id)
+        if declaration.init is not None:
+            val = declaration.init.accept(self)
+            self.environment.assign(declaration.id, val)
 
     def visit_return(self, return_s):
         logger.debug(Back.RED, "RUN", Back.RESET, return_s)

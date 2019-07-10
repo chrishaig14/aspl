@@ -1,4 +1,7 @@
 var sum_x_and_a;
+var addOne = fun(x){
+	return x + 1;
+};
 var call_sum_x_and_a_add_b;
 var a;
 var x;
@@ -19,3 +22,4 @@ print("RESULT IS ");
 print(call_sum_x_and_a_add_b(5));
 print(x);
 print(a);
+print(addOne(177));

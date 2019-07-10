@@ -4,7 +4,10 @@ import logger
 
 counter = 0
 
+
 def make_ast_node(node):
+    if node is None:
+        return None
     if node["type"] == "Declaration":
         return Declaration(node)
     if node["type"] == "Assignment":
@@ -23,6 +26,7 @@ def make_ast_node(node):
         return Return(node)
     if node["type"] == "Function":
         return Function(node)
+
 
 
 class FunctionCall:
@@ -55,6 +59,7 @@ class Expression:
 class Declaration:
     def __init__(self, node):
         self.id = node["id"]
+        self.init = make_ast_node(node["init"])
 
     def accept(self, visitor):
         visitor.visit_declaration(self)
@@ -150,4 +155,3 @@ class Assignment:
 
     def __str__(self):
         return "(assign " + str(self.lvalue) + " " + str(self.rvalue) + ")"
-

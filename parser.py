@@ -24,7 +24,14 @@ class Parser:
         if self.check("var"):
             self.advance()
             self.expect("id")
-            return {"type": "Declaration", "id": self.previous_token["data"]}
+            id = self.previous_token["data"]
+            exp = None
+            if self.check("assign"):
+                self.advance()
+                exp = self.parse_expression()
+            return {"type": "Declaration", "id": id, "init": exp}
+
+
 
     def parse_expression(self):
 
